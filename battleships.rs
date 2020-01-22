@@ -5,6 +5,13 @@
 // This allows camelCase variables and functions.
 #![allow(non_snake_case)]
 
+mod battleship;
+
+enum CommandLine
+{
+    Searching,
+    GameIndex
+}
 
 /// The main entry point for the "battleships" program.
 fn main()
@@ -13,64 +20,50 @@ fn main()
     let args: Vec<String> = std::env::args().collect();
     println!("{:?}", args);
 
-    if args.len() == 1
-    {
-        // No arguments, execute a synchronise.
-        println!("No arguments.");
-    }
-    else
-    {
-        println!("There are {} arguments", args.len() - 1);
+    let mut game = battleship::Game::new();
 
-        // Decode the command parameters (ignore the program name).
-        // for (int parameter = 1; parameter < argc; parameter++)
-        for parameter in 1..args.len()
+    // Decode the command parameters (ignore the program name).
+    // for (int parameter = 1; parameter < argc; parameter++)
+    let mut status = CommandLine::Searching;
+    for parameter in 1..args.len()
+    {
+        match status
         {
-            println!("Parameter {} is {}", parameter, args[parameter]);
-
-            let firstChar = &args[parameter][..1];
-            if firstChar == "-"
+            CommandLine::Searching =>
             {
-                let otherChar = &args[parameter][1..];
-                println!("Switch is {}", otherChar);
+                println!("Parameter {} is {}", parameter, args[parameter]);
 
-                /*
-                match otherChar
+                let firstChar = &args[parameter][..1];
+                if firstChar == "-"
                 {
-                "d" =>
-                {
-                    // Delete the files that follow on the command line.  Don't pass to Python.
-                    isDeleteMode = true;
-                    isPassToPython = false;
-                },
+                    let otherChar = &args[parameter][1..];
+                    // println!("Switch is {}", otherChar);
 
-                "v" =>
-                {
-                    // Get the level from the next parameter, if exists.
-                    let parameter = parameter + 1;
-                    println!("The level is {}", args[parameter]);
-                    /*
-                    if (parameter < argc)
+                    match otherChar
                     {
-                        sscanf(argv[parameter], "%d", &verbose_);
-                    }
-                    else
-                    {
-                        verbose_ = REPORT_FOLDER;
-                    }
-                    */
-                },
+                        "g" =>
+                        {
+                            status = CommandLine::GameIndex;
+                        },
 
-                _ =>
-                {
-                    // Unknown arguments, pass this to the python program.
-                    isPassToPython = true;
-                },
+                        _ =>
+                        {
+                            // Unknown arguments.
+
+                        },
+                    }
                 }
-                */
+            }
+
+            CommandLine::GameIndex =>
+            {
+                game.index = args[parameter].parse::<i32>().unwrap();
+                status = CommandLine::Searching;
             }
         }
     }
+
+    println!("game index is {}", game.index);
 
     // Return success.
     println!("Goodbye.");
