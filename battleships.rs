@@ -10,44 +10,47 @@ mod battleship;
 enum CommandLine
 {
     Searching,
-    GameIndex
+    GameIndex,
+    Indent
 }
 
 /// The main entry point for the "battleships" program.
-fn main()
-{
+fn main() {
     // Fetch the command line arguments.
     let args: Vec<String> = std::env::args().collect();
-    println!("{:?}", args);
+    // println!("{:?}", args);
 
+    // Initialise the variables.
     let mut game = battleship::Game::new();
+    let mut isShowHelp = false;
 
     // Decode the command parameters (ignore the program name).
     // for (int parameter = 1; parameter < argc; parameter++)
     let mut status = CommandLine::Searching;
-    for parameter in 1..args.len()
-    {
-        match status
-        {
-            CommandLine::Searching =>
-            {
-                println!("Parameter {} is {}", parameter, args[parameter]);
+    for parameter in 1..args.len() {
+        match status {
+            CommandLine::Searching => {
+                // println!("Parameter {} is {}", parameter, args[parameter]);
 
                 let firstChar = &args[parameter][..1];
-                if firstChar == "-"
-                {
+                if firstChar == "-" {
                     let otherChar = &args[parameter][1..];
                     // println!("Switch is {}", otherChar);
 
-                    match otherChar
-                    {
-                        "g" =>
-                        {
+                    match otherChar {
+                        "h" => {
+                            isShowHelp = true;
+                        },
+
+                        "g" => {
                             status = CommandLine::GameIndex;
                         },
 
-                        _ =>
-                        {
+                        "i" => {
+                            status = CommandLine::Indent;
+                        }
+
+                        _ => {
                             // Unknown arguments.
 
                         },
@@ -55,17 +58,30 @@ fn main()
                 }
             }
 
-            CommandLine::GameIndex =>
-            {
+            CommandLine::GameIndex => {
                 game.index = args[parameter].parse::<i32>().unwrap();
+                status = CommandLine::Searching;
+            }
+
+            CommandLine::Indent => {
+                game.indent = args[parameter].parse::<i32>().unwrap();
                 status = CommandLine::Searching;
             }
         }
     }
 
-    println!("game index is {}", game.index);
+    if isShowHelp {
+        println!("Solver for Logic Battleships.");
+        println!("optional arguments:");
+        println!("  -h\t\tShow this help message and exit.");
+        println!("  -g GAME\tThe index of the game to solve.");
+        println!("  -i INDENT\tThe identation for the progress information.");
+    }
+    else {
+        println!("game index is {}, indent is {}", game.index, game.indent);
+        println!("Goodbye.");
+    }
 
     // Return success.
-    println!("Goodbye.");
     return;
 }
