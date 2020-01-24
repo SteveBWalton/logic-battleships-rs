@@ -6,6 +6,7 @@
 #![allow(non_snake_case)]
 
 mod battleship;
+mod load_game;
 
 enum CommandLine
 {
@@ -14,6 +15,7 @@ enum CommandLine
     Indent,
     Start,
     Finish,
+    Threads,
 }
 
 /// The main entry point for the "battleships" program.
@@ -60,6 +62,10 @@ fn main() {
                             status = CommandLine::Finish;
                         }
 
+                        "t" => {
+                            status = CommandLine::Threads;
+                        }
+
                         _ => {
                             // Unknown arguments.
 
@@ -87,6 +93,11 @@ fn main() {
                 game.finish = args[parameter].parse::<f64>().unwrap();
                 status = CommandLine::Searching;
             }
+
+            CommandLine::Threads => {
+                game.threads = args[parameter].parse::<i32>().unwrap();
+                status = CommandLine::Searching;
+            }
         }
     }
 
@@ -100,7 +111,12 @@ fn main() {
         println!("  -f FINISH\tThe finish position for the search.");
     }
     else {
-        println!("game index is {}, indent is {}, start is {}, finish is {}.", game.index, game.indent, game.start, game.finish);
+        if game.index > 0 {
+            load_game::loadGame(&mut game);
+        }
+
+        println!("game index is {}, grid is {}, indent is {}, start is {}, finish is {}.", game.index, game.grid, game.indent, game.start, game.finish);
+
         println!("Goodbye.");
     }
 
