@@ -13,6 +13,7 @@ enum CommandLine
     GameIndex,
     Indent,
     Start,
+    Finish,
 }
 
 /// The main entry point for the "battleships" program.
@@ -41,11 +42,11 @@ fn main() {
                     match otherChar {
                         "h" => {
                             isShowHelp = true;
-                        },
+                        }
 
                         "g" => {
                             status = CommandLine::GameIndex;
-                        },
+                        }
 
                         "i" => {
                             status = CommandLine::Indent;
@@ -55,10 +56,14 @@ fn main() {
                             status = CommandLine::Start;
                         }
 
+                        "f" => {
+                            status = CommandLine::Finish;
+                        }
+
                         _ => {
                             // Unknown arguments.
 
-                        },
+                        }
                     }
                 }
             }
@@ -77,6 +82,11 @@ fn main() {
                 game.start = args[parameter].parse::<f64>().unwrap();
                 status = CommandLine::Searching;
             }
+
+            CommandLine::Finish => {
+                game.finish = args[parameter].parse::<f64>().unwrap();
+                status = CommandLine::Searching;
+            }
         }
     }
 
@@ -90,7 +100,7 @@ fn main() {
         println!("  -f FINISH\tThe finish position for the search.");
     }
     else {
-        println!("game index is {}, indent is {}, start is {}", game.index, game.indent, game.start);
+        println!("game index is {}, indent is {}, start is {}, finish is {}.", game.index, game.indent, game.start, game.finish);
         println!("Goodbye.");
     }
 
