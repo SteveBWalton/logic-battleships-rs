@@ -20,7 +20,7 @@ enum CommandLine
 fn main() {
     // Fetch the command line arguments.
     let args: Vec<String> = std::env::args().collect();
-    // println!("{:?}", args);
+    println!("{:?}", args);
 
     // Initialise the variables.
     let mut game = battleship::Game::new();
