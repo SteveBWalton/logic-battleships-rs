@@ -114,13 +114,14 @@ fn main() {
     else {
         if game.index > 0 {
             game.loadGame();
-            // load_game::loadGame(&mut game);
 
-            game.displayBoard();
+            game.solve();
         }
 
-        println!("game index is {}, grid is {}, indent is {}, start is {}, finish is {}.", game.index, game.grid, game.indent, game.start, game.finish);
-
+        println!();
+        println!();
+        println!();
+        println!();
         println!("Goodbye.");
     }
 
