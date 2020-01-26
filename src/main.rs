@@ -109,10 +109,14 @@ fn main() {
         println!("  -i INDENT\tThe identation for the progress information.");
         println!("  -s START\tThe starting position for the search.");
         println!("  -f FINISH\tThe finish position for the search.");
+        println!("  -t THREADS\tThe number of threads to split the search into.");
     }
     else {
         if game.index > 0 {
-            load_game::loadGame(&mut game);
+            game.loadGame();
+            // load_game::loadGame(&mut game);
+
+            game.displayBoard();
         }
 
         println!("game index is {}, grid is {}, indent is {}, start is {}, finish is {}.", game.index, game.grid, game.indent, game.start, game.finish);
