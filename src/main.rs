@@ -75,12 +75,12 @@ fn main() {
             }
 
             CommandLine::GameIndex => {
-                game.index = args[parameter].parse::<i32>().unwrap();
+                game.index = args[parameter].parse::<usize>().unwrap();
                 status = CommandLine::Searching;
             }
 
             CommandLine::Indent => {
-                game.indent = args[parameter].parse::<i32>().unwrap();
+                game.indent = args[parameter].parse::<usize>().unwrap();
                 status = CommandLine::Searching;
             }
 
@@ -95,7 +95,7 @@ fn main() {
             }
 
             CommandLine::Threads => {
-                game.threads = args[parameter].parse::<i32>().unwrap();
+                game.threads = args[parameter].parse::<usize>().unwrap();
                 status = CommandLine::Searching;
             }
         }
