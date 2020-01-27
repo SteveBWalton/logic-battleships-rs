@@ -26,6 +26,7 @@ pub struct Game {
     posibilities: Vec<Vec<usize>>,
     line: Vec<usize>,
     startTime: std::time::Instant,
+    totalShips: usize,
 }
 
 // Methods for the 'Game' class.
@@ -38,7 +39,7 @@ impl Game {
         let posibilities = Vec::new();
         let line = Vec::new();
         let now = std::time::Instant::now();
-        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now}
+        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now, totalShips: 0}
     }
 
 
@@ -89,7 +90,7 @@ impl Game {
             for x in 0usize..self.grid {
                 let mask = 2_usize.pow(x as u32);
                 if self.mask[y] & mask == mask {
-                    print!("\u{2588}");
+                    print!("\u{2589}");
                 }
                 else if self.negativeMask[y] & mask == mask {
                     print!("\u{00B7}");
@@ -125,6 +126,9 @@ impl Game {
     // Display the current position.
     fn displayPosition(& self) {
         println!("Logic Battleships Game Number {}", self.index);
+
+        let ships = self.getShips();
+
         print!("\u{250F}");
         for _y in 0..self.grid {
             print!("\u{2501}");
@@ -132,22 +136,34 @@ impl Game {
         println!("\u{2513}");
         for y in 0..self.grid {
             print!("\u{2503}");
-            for x in 0usize..self.grid {
+            for x in 0..self.grid {
                 let mask = 2_usize.pow(x as u32);
                 if self.line[y] & mask == mask {
-                    print!("\u{2588}");
+                    print!("\u{2589}");
                 }
                 else {
-                    print!(".");
+                    print!("\u{00B7}");
                 }
             }
-            println!("\u{2503}");
+            print!("\u{2503}");
+            print!("{}", self.horizontal[y]);
+
+            if y > 0 && y <= self.maxShip {
+                print!("  {} x {} ship.", ships[y], y);
+            }
+
+            println!();
         }
         print!("\u{2517}");
         for _y in 0..self.grid {
             print!("\u{2501}");
         }
         println!("\u{251B}");
+        print!(" ");
+        for y in 0..self.grid {
+            print!("{}", self.vertical[y]);
+        }
+        println!("");
     }
 
 
@@ -287,6 +303,18 @@ impl Game {
 
     // Find the solutions to the game.
     pub fn solve(&mut self) {
+
+        self.totalShips = 0;
+        let mut verticalShips = 0;
+        for row in 0..self.grid {
+            self.totalShips += self.horizontal[row];
+            verticalShips += self.vertical[row];
+        }
+        if verticalShips != self.totalShips {
+            println!("Horizontal Total {} != {} Vertical total.", self.totalShips, verticalShips);
+            return;
+        }
+
         if self.threads == 0 {
             self.displayBoard();
         }
@@ -355,17 +383,20 @@ impl Game {
             }
         }
 
-        // Optionally check for the correct number of ships.
-        //if self.isCheckShips:
-        //    ships = self.getShips()
-        //    if ships[1] != 4:
-        //        return False
-        //    if ships[2] != 3:
-        //        return False
-        //    if ships[3] != 2:
-        //        return False
-        //    if ships[4] != 1:
-        //        return False
+        // Check for the correct number of ships.
+        let ships = self.getShips();
+        if ships[1] != 4 {
+            return false;
+        }
+        if ships[2] != 3 {
+            return false;
+        }
+        if ships[3] != 2 {
+            return false;
+        }
+        if ships[4] != 1 {
+            return false;
+        }
 
         // Looks good!!
         return true;
@@ -396,6 +427,51 @@ impl Game {
         // Search on the board.
         let mask = 2_usize.pow(x as u32);
         return self.line[y as usize] & mask == mask;
+    }
+
+
+
+    // Counts the number and size of ships on the line.
+    fn countShipsOnLine(&self, line: usize, ships: &mut Vec<usize>) {
+        // binaryLine = '{0:b}'.format(line)
+        let mut current = 0;
+        let mut mask = 1;
+        for _pos in 0..self.grid {
+            if line & mask == mask {
+                current += 1;
+            }
+            else {
+                if current > 1 {
+                    ships[current] += 1;
+                }
+                current = 0;
+            }
+            mask *= 2;
+        }
+        if current > 1 {
+            ships[current] += 1;
+        }
+    }
+
+
+
+    /// Returns the number and size of the ships on the grid.
+    fn getShips(&self) -> Vec<usize>  {
+        let mut ships: Vec<usize> = Vec::new();
+        for _shipSize in 0..self.maxShip+1 {
+            ships.push(0);
+        }
+        for row in 0..self.grid {
+            self.countShipsOnLine(self.line[row], &mut ships);
+            self.countShipsOnLine(self.verticalLine(row), &mut ships);
+        }
+        let mut shipsOne = self.totalShips;
+        for shipSize in 0..self.maxShip+1 {
+            shipsOne -= shipSize * ships[shipSize];
+        }
+        ships[1] = shipsOne;
+
+        return ships
     }
 
 
