@@ -10,6 +10,7 @@ pub struct Game {
     pub finish: f64,
     pub threads: usize,
     pub append: bool,
+    pub largeSolver: bool,
 
     // Properties loaded from the game index.
     pub grid: usize,
@@ -37,7 +38,7 @@ impl Game {
         let posibilities = Vec::new();
         let line = Vec::new();
         let now = std::time::Instant::now();
-        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 1, append: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now}
+        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now}
     }
 
 
@@ -262,13 +263,15 @@ impl Game {
                             println!("\x1B[{}C{:>7.3} ", self.indent, percentage);
                             println!("\x1B[{}C {} ", self.indent, formatTime(estimatedTime));
                             println!("\x1B[{}C {} ", self.indent, formatTime(elapsedTime));
-                            print!("\x1B[{}C {} \r\x1B[3A", self.indent, formatTime(totalTime));
+                            println!("\x1B[{}C {} ", self.indent, formatTime(totalTime));
+                            println!("\x1B[5A");
                         }
                         else {
                             println!("{:>7.3} ", percentage);
                             println!(" {} ", formatTime(estimatedTime));
                             println!(" {} ", formatTime(elapsedTime));
-                            print!(" {} \r\x1B[3A", formatTime(totalTime));
+                            println!(" {} ", formatTime(totalTime));
+                            println!("\x1B[5A");
                         }
                     }
                 }
@@ -284,7 +287,10 @@ impl Game {
 
     // Find the solutions to the game.
     pub fn solve(&mut self) {
-        if self.threads == 1 {
+        if self.threads == 0 {
+            self.displayBoard();
+        }
+        else if self.threads == 1 {
             // Active solve this problem.
             if self.append {
                 self.dontDisplayBoard();
@@ -426,7 +432,7 @@ impl Game {
             args.push(format!("{}", indent));
             args.push("-t".to_string());
             args.push("1".to_string());
-            args.push("-a".to_string());
+            args.push("-k".to_string());
             if false {
                 println!("{:?}", args);
             }
@@ -475,7 +481,7 @@ impl Game {
                     */
         }
         for mut thread in threads {
-            thread.wait();
+            let _result = thread.wait().unwrap();
         }
 
         /*

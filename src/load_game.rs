@@ -9,7 +9,6 @@ impl Game {
             1 => {
                 self.grid = 10;
                 self.maxShip = 4;
-
                 self.initialise();
 
                 self.horizontal[0] = 1;
@@ -43,6 +42,42 @@ impl Game {
                 self.negativeMask[2] = 1 + 2 + 8 + 16 + 32 + 128;
                 self.mask[3] = 64;
                 self.mask[4] = 2 + 64 + 256 + 512;
+            }
+
+            3 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 4;
+                self.horizontal[1] = 0;
+                self.horizontal[2] = 3;
+                self.horizontal[3] = 5;
+                self.horizontal[4] = 2;
+                self.horizontal[5] = 0;
+                self.horizontal[6] = 0;
+                self.horizontal[7] = 2;
+                self.horizontal[8] = 2;
+                self.horizontal[9] = 2;
+                self.vertical[0] = 3;
+                self.vertical[1] = 0;
+                self.vertical[2] = 1;
+                self.vertical[3] = 4;
+                self.vertical[4] = 1;
+                self.vertical[5] = 6;
+                self.vertical[6] = 0;
+                self.vertical[7] = 3;
+                self.vertical[8] = 0;
+                self.vertical[9] = 2;
+
+                self.mask[7] = 128;
+                self.mask[8] = 1;
+                self.mask[9] = 512;
+
+                self.negativeMask[6] = 64 + 128 + 256;
+                self.negativeMask[7] = 2 + 64 + 256;
+                self.negativeMask[8] = 2 + 64 + 128 + 256 + 512;
+                self.negativeMask[9] = 1 + 2 + 256;
             }
 
             45 => {

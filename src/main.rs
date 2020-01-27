@@ -16,7 +16,6 @@ enum CommandLine
     Start,
     Finish,
     Threads,
-    Append,
 }
 
 /// The main entry point for the "battleships" program.
@@ -67,8 +66,12 @@ fn main() {
                             status = CommandLine::Threads;
                         }
 
-                        "a" => {
+                        "k" => {
                             game.append = true;
+                        }
+
+                        "l" => {
+                            game.largeSolver = true;
                         }
 
                         _ => {
@@ -103,9 +106,6 @@ fn main() {
                 game.threads = args[parameter].parse::<usize>().unwrap();
                 status = CommandLine::Searching;
             }
-
-            _ => {
-            }
         }
     }
 
@@ -118,6 +118,8 @@ fn main() {
         println!("  -s START\tThe starting position for the search.");
         println!("  -f FINISH\tThe finish position for the search.");
         println!("  -t THREADS\tThe number of threads to split the search into.");
+        println!("  -k\t\tKeep the existing output file.");
+        println!("  -l\t\tLarge solver.  Guess the position of 4 and 5 ships.");
     }
     else {
         if game.index > 0 {
