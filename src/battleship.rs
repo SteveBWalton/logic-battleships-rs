@@ -1,6 +1,10 @@
 // Module to define the 'Game' class.
 
 
+// use std::fs::OpenOptions;
+use std::io::prelude::*;
+
+
 // Member variables for the 'Game' class.
 #[derive(Clone)]
 pub struct Game {
@@ -67,87 +71,147 @@ impl Game {
 
 
 
-    // Display the intial board.
-    fn displayBoard(&self) {
-        println!("Logic Battleships Game Number {}", self.index);
-        print!("\u{250F}");
-        for _y in 0..self.grid {
-            print!("\u{2501}");
-        }
-        println!("\u{2513}");
-        for y in 0..self.grid {
-            print!("\u{2503}");
-            for x in 0usize..self.grid {
-                let mask = 2_usize.pow(x as u32);
-                if self.mask[y] & mask == mask {
-                    print!("\u{2589}");
+    fn writeFile(&self, message: String, isAppend: bool) {
+        print!("{}", message);
+        // println!("isAppend = {}", isAppend);
+        if !isAppend {
+            match std::fs::remove_file("results.txt") {
+                Err(_e) => {
                 }
-                else if self.negativeMask[y] & mask == mask {
-                    print!("\u{00B7}");
-                }
-                else {
-                    print!(" ");
+
+                Ok(_) => {
                 }
             }
-            print!("\u{2503}");
-            print!("{}", self.horizontal[y]);
-            println!("  There are {} possible lines.", self.posibilities[y].len());
-      }
-        print!("\u{2517}");
-        for _y in 0..self.grid {
-            print!("\u{2501}");
         }
-        println!("\u{251B}");
-        print!(" ");
-        for y in 0..self.grid {
-            print!("{}", self.vertical[y]);
+
+        let mut option = std::fs::OpenOptions::new();
+        if isAppend {
+            // Append to existing file.
+            option.append(true);
+            option.create(true);
         }
-        println!("");
-        println!("Search space is {}", formatInt(self.number));
+        else {
+            // Create new.
+            // This errors if the file exists.
+            // println!("Create new log file.");
+            option.write(true);
+            option.create_new(true);
+        }
+
+        match option.open("results.txt") {
+            Err(e) => {
+                println!("File open error.");
+                println!("{}", e);
+            }
+
+            Ok(mut f) => {
+                // match f.write_all(message.as_bytes()) {
+                match write!(f, "{}", message) {
+                    Err(_e) => {
+                        println!("File write error.");
+                    }
+
+                    Ok(_) => {
+                    }
+                }
+            }
+        }
     }
 
 
+
+    // Display the intial board.
+    fn displayBoard(&self) {
+        let mut board : String = format!("Logic Battleships Game Number {}\n", self.index);
+
+        // println!("Logic Battleships Game Number {}", self.index);
+
+        board += "\u{250F}";
+        // print!("\u{250F}");
+        for _y in 0..self.grid {
+            // print!("\u{2501}");
+            board += "\u{2501}";
+        }
+        // println!("\u{2513}");
+        board += "\u{2513}\n";
+        for y in 0..self.grid {
+            board += "\u{2503}";
+            for x in 0usize..self.grid {
+                let mask = 2_usize.pow(x as u32);
+                if self.mask[y] & mask == mask {
+                    board += "\u{2589}";
+                }
+                else if self.negativeMask[y] & mask == mask {
+                    board += "\u{00B7}";
+                }
+                else {
+                    board += " ";
+                }
+            }
+            board += "\u{2503}";
+            board = format!("{}{}", board, self.horizontal[y]);
+            board = format!("{}  There are {} possible lines.\n", board, self.posibilities[y].len());
+        }
+        board += "\u{2517}";
+        for _y in 0..self.grid {
+            board += "\u{2501}";
+        }
+        board += "\u{251B}\n";
+        board += " ";
+        for y in 0..self.grid {
+            board = format!("{}{}", board,self.vertical[y]);
+        }
+        board += "\n";
+        board = format!("{}Search space is {}\n", board, formatInt(self.number));
+        self.writeFile(board, self.append);
+    }
+
+
+
     // Display the current position.
+    // This is usually a solution.
     fn displayPosition(& self) {
-        println!("Logic Battleships Game Number {}", self.index);
+        let mut board : String = format!("Logic Battleships Game Number {}\n", self.index);
 
         let ships = self.getShips();
 
-        print!("\u{250F}");
+        board += "        \u{250F}";
         for _y in 0..self.grid {
-            print!("\u{2501}");
+            board += "\u{2501}";
         }
-        println!("\u{2513}");
+        board += "\u{2513}\n";
         for y in 0..self.grid {
-            print!("\u{2503}");
+            board += "        \u{2503}";
             for x in 0..self.grid {
                 let mask = 2_usize.pow(x as u32);
                 if self.line[y] & mask == mask {
-                    print!("\u{2589}");
+                    board += "\u{2589}";
                 }
                 else {
-                    print!("\u{00B7}");
+                    board += "\u{00B7}";
                 }
             }
-            print!("\u{2503}");
-            print!("{}", self.horizontal[y]);
+            board += "\u{2503}";
+            board = format!("{}{}", board, self.horizontal[y]);
 
             if y > 0 && y <= self.maxShip {
-                print!("  {} x {} ship.", ships[y], y);
+                board = format!("{}  {} x {} ship.", board, ships[y], y);
             }
 
-            println!();
+            board += "\n";
         }
-        print!("\u{2517}");
+        board += "        \u{2517}";
         for _y in 0..self.grid {
-            print!("\u{2501}");
+            board += "\u{2501}";
         }
-        println!("\u{251B}");
-        print!(" ");
+        board +="\u{251B}\n";
+        board += "         ";
         for y in 0..self.grid {
-            print!("{}", self.vertical[y]);
+            board = format!("{}{}", board, self.vertical[y]);
         }
-        println!("");
+        board += "\n";
+
+        self.writeFile(board, true);
     }
 
 
@@ -338,8 +402,13 @@ impl Game {
             if self.largeSolver {
                 // Use the large solver.
                 // This only works for maxShip 5 problems.
-                let numPositions = self.guessLargeShips(false, 0, 0);
-                self.guessLargeShips(true, 0, numPositions);
+                if self.maxShip != 5 {
+                    println!("The large solver only works for max ship 5 problems.");
+                }
+                else {
+                    let numPositions = self.guessLargeShips(false, 0, 0);
+                    self.guessLargeShips(true, 0, numPositions);
+                }
             }
             else {
                 // Launch threads to standard solve the problem.
@@ -756,25 +825,25 @@ impl Game {
     // Launch a command line to solve the specified long solver position.
     fn launch(&self, numPositions: usize, totalPositions: usize) {
         if totalPositions > 0 {
-            println!("Long ships position {} of {}", numPositions, totalPositions);
+            self.writeFile(format!("Long ships position {} of {}\n", numPositions, totalPositions), true);
         }
         if self.start as usize > numPositions {
             return;
         }
 
-        self.displayPosition();
+        // self.displayPosition();
 
         let mut args: Vec<String> = [].to_vec();
         args.push("-g".to_string());
         args.push(format!("{}", self.index));
         args.push("-t".to_string());
         args.push(format!("{}", self.threads));
-        // args.push("-k".to_string());
+        args.push("-k".to_string());
         args.push("-m".to_string());
         for x in 0..self.line.len() {
             args.push(format!("{}", self.line[x]));
         }
-        if true {
+        if false {
             println!("{:?}", args);
         }
 

@@ -11,3 +11,4 @@ Cargo.lock
 
 # Files added by Steve
 battleships
+*.txt
