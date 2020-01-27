@@ -92,7 +92,6 @@ impl Game {
             }
 
         _ => {
-                println!("Hello Game 2");
                 self.grid = 10;
                 self.maxShip = 4;
 

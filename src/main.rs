@@ -16,13 +16,14 @@ enum CommandLine
     Start,
     Finish,
     Threads,
+    Append,
 }
 
 /// The main entry point for the "battleships" program.
 fn main() {
     // Fetch the command line arguments.
     let args: Vec<String> = std::env::args().collect();
-    println!("{:?}", args);
+    // println!("{:?}", args);
 
     // Initialise the variables.
     let mut game = battleship::Game::new();
@@ -66,6 +67,10 @@ fn main() {
                             status = CommandLine::Threads;
                         }
 
+                        "a" => {
+                            game.append = true;
+                        }
+
                         _ => {
                             // Unknown arguments.
 
@@ -98,6 +103,9 @@ fn main() {
                 game.threads = args[parameter].parse::<usize>().unwrap();
                 status = CommandLine::Searching;
             }
+
+            _ => {
+            }
         }
     }
 
@@ -118,11 +126,13 @@ fn main() {
             game.solve();
         }
 
-        println!();
-        println!();
-        println!();
-        println!();
-        println!("Goodbye.");
+        if !game.append {
+            println!();
+            println!();
+            println!();
+            println!();
+            println!("Goodbye.");
+        }
     }
 
     // Return success.

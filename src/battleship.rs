@@ -9,6 +9,7 @@ pub struct Game {
     pub start: f64,
     pub finish: f64,
     pub threads: usize,
+    pub append: bool,
 
     // Properties loaded from the game index.
     pub grid: usize,
@@ -36,14 +37,14 @@ impl Game {
         let posibilities = Vec::new();
         let line = Vec::new();
         let now = std::time::Instant::now();
-        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 1, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now}
+        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 1, append: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now}
     }
 
 
 
     // Initialise the arrays.
     pub fn initialise(&mut self) {
-        println!("initialise, self.grid = {}", self.grid);
+        // println!("initialise, self.grid = {}", self.grid);
         /*
         self.horizontal = vec![0; self.grid];
         self.vertical = vec![0; self.grid];
@@ -56,6 +57,18 @@ impl Game {
             self.mask.push(0);
             self.negativeMask.push(0);
             self.line.push(0);
+        }
+    }
+
+
+
+    // Make the calculations that displayBoard() makes.
+    fn dontDisplayBoard(&mut self) {
+        self.number = 1;
+        for y in 0..self.grid {
+            let lines = self.getPossibleLines(self.horizontal[y], self.mask[y], self.negativeMask[y]);
+            self.number *= lines.len();
+            self.posibilities.push(lines);
         }
     }
 
@@ -240,8 +253,7 @@ impl Game {
                     self.count += 1;
 
                     // Display the progress on this thread.
-                    // if self.count % 100000 == 0 {
-                    if self.count % 1000 == 0 {
+                    if self.count % 10000000 == 0 {
                         let elapsedTime = self.startTime.elapsed().as_secs(); 3600.0; // time.time() - self.startTime
                         let completed = (percentage - self.start) / (self.finish - self.start);
                         let totalTime = (elapsedTime as f64 / completed) as u64;
@@ -272,9 +284,30 @@ impl Game {
 
     // Find the solutions to the game.
     pub fn solve(&mut self) {
-        self.displayBoard();
+        if self.threads == 1 {
+            // Active solve this problem.
+            if self.append {
+                self.dontDisplayBoard();
+            }
+            else
+            {
+                self.displayBoard();
+            }
+            self.search(0);
+            if self.indent > 0 {
+                print!("\x1B[{}C ------ \r", self.indent);
+            }
+            else {
+                print!(" ------ \r");
+            }
+        }
+        else {
+            self.displayBoard();
 
-        self.search(0);
+            // Launch threads to solve the problem.
+            self.startThreads();
+        }
+
     }
 
 
@@ -357,6 +390,102 @@ impl Game {
         // Search on the board.
         let mask = 2_usize.pow(x as u32);
         return self.line[y as usize] & mask == mask;
+    }
+
+
+
+    /// Launch the specified number of threads to start the program.
+    fn startThreads(&self) {
+        let mut split = self.threads;
+        if split > 20 {
+            split = 20;
+        }
+        else if split < 2 {
+            split = 2;
+        }
+
+        let amount = (self.finish - self.start) / split as f64;
+        let mut start = self.start;
+        let mut indent = 0;
+        let mut threads: Vec<std::process::Child> = Vec::new(); // [].to_vec();
+        // threads = []
+        for i in 0..split {
+            let mut args: Vec<String> = [].to_vec();
+            args.push("-g".to_string());
+            args.push(format!("{}", self.index));
+            args.push("-s".to_string());
+            args.push(format!("{}", start));
+            args.push("-f".to_string());
+            if i == split-1 {
+                args.push("100".to_string());
+            }
+            else {
+                args.push(format!("{}", start+amount));
+            }
+            args.push("-i".to_string());
+            args.push(format!("{}", indent));
+            args.push("-t".to_string());
+            args.push("1".to_string());
+            args.push("-a".to_string());
+            if false {
+                println!("{:?}", args);
+            }
+
+            let mut command = std::process::Command::new("target/debug/battleships");
+            command.args(args);
+            let child = command.spawn().unwrap();
+
+            threads.push(child);
+
+            // command = [__file__, '--game', '{}'.format(gameNumber) , '--start', '{}'.format(fStart), '--finish', '{}'.format(fStart + fAmount), '--indent', '{}'.format(indent), '--threads', '1']
+            // if game.isTranspose:
+            // command.append('-p')
+            // if args.verbose:
+            // command.append('-v')
+            // if args.mask:
+            // command.append('--mask')
+            // for i in range(0, len(args.mask)):
+            // command.append('{}'.format(args.mask[i]))
+            // threads.append(subprocess.Popen(command))
+            start += amount;
+            indent += 7;
+            /*
+                if game.finishSearch >= 100:
+                    if args.verbose:
+                        print('Thread({}) --game={} --start={} --indent={} --threads={}'.format(nSplit-1, gameNumber, fStart, indent, 1))
+                    command = [__file__, '--game', '{}'.format(gameNumber), '--start', '{}'.format(fStart), '--indent', '{}'.format(indent), '--threads', '1']
+                    if game.isTranspose:
+                        command.append('-p')
+                    if args.verbose:
+                        command.append('-v')
+                    if args.mask:
+                        command.append('--mask')
+                        for i in range(0, len(args.mask)):
+                            command.append('{}'.format(args.mask[i]))
+                    threads.append(subprocess.Popen(command))
+                else:
+                    if args.verbose:
+                        print('Thread({}) --game={} --start={} --finish={} --indent={} --threads={}'.format(nSplit-1, gameNumber, fStart, game.finishSearch, indent, 1))
+                    command = [__file__, '--game', '{}'.format(gameNumber), '--start', '{}'.format(fStart), '--finish', '{}'.format(game.finishSearch), '--indent', '{}'.format(indent), '--threads', '1']
+                    if game.isTranspose:
+                        command.append('-p')
+                    if args.verbose:
+                        command.append('-v')
+                    threads.append(subprocess.Popen(command))
+                    */
+        }
+        for mut thread in threads {
+            thread.wait();
+        }
+
+        /*
+        while isAnyThreadRunning(threads):
+            time.sleep(10)
+        */
+        println!();
+        println!();
+        println!();
+        println!();
     }
 }
 
