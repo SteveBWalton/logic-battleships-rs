@@ -171,5 +171,10 @@ impl Game {
                 self.negativeMask[9] = 2;
             }
         }
+
+        // Add in the user specified mask information.
+        for i in 0..self.userMask.len() {
+            self.mask[i] |= self.userMask[i];
+        }
     }
 }

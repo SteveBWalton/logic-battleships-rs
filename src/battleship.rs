@@ -2,6 +2,7 @@
 
 
 // Member variables for the 'Game' class.
+#[derive(Clone)]
 pub struct Game {
     // Properties specified by the command line.
     pub index: usize,
@@ -11,6 +12,7 @@ pub struct Game {
     pub threads: usize,
     pub append: bool,
     pub largeSolver: bool,
+    pub userMask: Vec<usize>,
 
     // Properties loaded from the game index.
     pub grid: usize,
@@ -39,7 +41,8 @@ impl Game {
         let posibilities = Vec::new();
         let line = Vec::new();
         let now = std::time::Instant::now();
-        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now, totalShips: 0}
+        let userMask = Vec::new();
+        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, userMask: userMask, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now, totalShips: 0}
     }
 
 
@@ -64,27 +67,14 @@ impl Game {
 
 
 
-    // Make the calculations that displayBoard() makes.
-    fn dontDisplayBoard(&mut self) {
-        self.number = 1;
-        for y in 0..self.grid {
-            let lines = self.getPossibleLines(self.horizontal[y], self.mask[y], self.negativeMask[y]);
-            self.number *= lines.len();
-            self.posibilities.push(lines);
-        }
-    }
-
-
-
     // Display the intial board.
-    fn displayBoard(&mut self) {
+    fn displayBoard(&self) {
         println!("Logic Battleships Game Number {}", self.index);
         print!("\u{250F}");
         for _y in 0..self.grid {
             print!("\u{2501}");
         }
         println!("\u{2513}");
-        self.number = 1;
         for y in 0..self.grid {
             print!("\u{2503}");
             for x in 0usize..self.grid {
@@ -101,14 +91,8 @@ impl Game {
             }
             print!("\u{2503}");
             print!("{}", self.horizontal[y]);
-
-            let lines = self.getPossibleLines(self.horizontal[y], self.mask[y], self.negativeMask[y]);
-            println!("  There are {} possible lines.", lines.len());
-
-            self.number *= lines.len();
-
-            self.posibilities.push(lines);
-        }
+            println!("  There are {} possible lines.", self.posibilities[y].len());
+      }
         print!("\u{2517}");
         for _y in 0..self.grid {
             print!("\u{2501}");
@@ -301,9 +285,7 @@ impl Game {
 
 
 
-    // Find the solutions to the game.
-    pub fn solve(&mut self) {
-
+    fn initialiseGame(&mut self) -> bool {
         self.totalShips = 0;
         let mut verticalShips = 0;
         for row in 0..self.grid {
@@ -312,6 +294,25 @@ impl Game {
         }
         if verticalShips != self.totalShips {
             println!("Horizontal Total {} != {} Vertical total.", self.totalShips, verticalShips);
+            return false;
+        }
+
+        self.number = 1;
+        for y in 0..self.grid {
+            let lines = self.getPossibleLines(self.horizontal[y], self.mask[y], self.negativeMask[y]);
+            self.number *= lines.len();
+            self.posibilities.push(lines);
+        }
+
+        // Return success.
+        return true;
+    }
+
+
+    // Find the solutions to the game.
+    pub fn solve(&mut self) {
+        if !self.initialiseGame()
+        {
             return;
         }
 
@@ -320,11 +321,7 @@ impl Game {
         }
         else if self.threads == 1 {
             // Active solve this problem.
-            if self.append {
-                self.dontDisplayBoard();
-            }
-            else
-            {
+            if !self.append {
                 self.displayBoard();
             }
             self.search(0);
@@ -338,8 +335,16 @@ impl Game {
         else {
             self.displayBoard();
 
-            // Launch threads to solve the problem.
-            self.startThreads();
+            if self.largeSolver {
+                // Use the large solver.
+                // This only works for maxShip 5 problems.
+                let numPositions = self.guessLargeShips(false, 0, 0);
+                self.guessLargeShips(true, 0, numPositions);
+            }
+            else {
+                // Launch threads to standard solve the problem.
+                self.startThreads();
+            }
         }
 
     }
@@ -509,6 +514,14 @@ impl Game {
             args.push("-t".to_string());
             args.push("1".to_string());
             args.push("-k".to_string());
+
+            if self.userMask.len() > 0 {
+                args.push("-m".to_string());
+                for x in 0..self.userMask.len() {
+                    args.push(format!("{}", self.userMask[x]));
+                }
+            }
+
             if false {
                 println!("{:?}", args);
             }
@@ -568,6 +581,208 @@ impl Game {
         println!();
         println!();
         println!();
+    }
+
+
+
+    // Set the position to the position defined by the mask.
+    fn applyMask(&mut self) {
+        for x in 0..self.grid {
+            self.line[x] = self.mask[x]
+        }
+    }
+
+    // Loop through all the possible positions for the large ships.
+    fn guessLargeShips(&mut self, isSolve: bool, numPositions: usize, totalPositions: usize) -> usize {
+
+        // print('Loop through all the possible positions for the large ships. ')
+
+        if !self.initialiseGame()
+        {
+            return 0;
+        }
+
+        let mut countPositions = numPositions;
+
+        // Build the initial positions.
+        self.applyMask();
+        let ships = self.getShips();
+
+        let mut shipSize = 0;
+        if self.maxShip >= 4 {
+            // print('There should be 1 size 4 ship.')
+            // print('There are {} size 4 ships.'.format(ships[4]))
+            if ships[4] < 1 {
+                shipSize = 4;
+            }
+        }
+        if self.maxShip >= 5 {
+            // print('There should be 1 size 5 ship.')
+            // print('There are {} size 5 ships.'.format(ships[5]))
+            if ships[5] < 1 {
+                shipSize = 5;
+            }
+        }
+
+        if shipSize > 0 {
+            // Try to fit a ship of size shipSize onto the grid.
+            // Add the ship horizontally.
+            for x in 0..self.grid - shipSize + 1 {
+                for y in 0..self.grid {
+                    self.applyMask();
+                    for ship in x..x+shipSize {
+                        self.line[y] |= 2_usize.pow(ship as u32);
+                    }
+                    if self.isPartialSolution(shipSize) {
+                        if shipSize == 5 {
+                            let mut newGame = self.clone(); // copy.deepcopy(self)
+                            for i in 0..self.grid {
+                                newGame.mask[i] = newGame.line[i];
+                            }
+                            countPositions = newGame.guessLargeShips(isSolve, countPositions, totalPositions);
+                        }
+                        else {
+                            countPositions += 1;
+                            if isSolve {
+                                // self.write()
+                                self.launch(countPositions, totalPositions)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add the ship vertically.
+            for x in 0..self.grid {
+                for y in 0..self.grid - shipSize + 1 {
+                    self.applyMask();
+                    for ship in y..y+shipSize {
+                        self.line[ship] |= 2_usize.pow(x as u32);
+                    }
+                    if self.isPartialSolution(shipSize) {
+                        if shipSize == 5 {
+                            let mut newGame = self.clone(); // copy.deepcopy(self)
+                            for i in 0..self.grid {
+                                newGame.mask[i] = newGame.line[i];
+                            }
+                            countPositions = newGame.guessLargeShips(isSolve, countPositions, totalPositions)
+                        }
+                        else {
+                            countPositions += 1;
+                            if isSolve {
+                                // self.write()
+                                self.launch(countPositions, totalPositions)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return countPositions;
+    }
+
+
+    // Returns true if the current position does not exceed the boundary conditions and could lead to a valid solultion.
+    fn isPartialSolution(&self, shipSize: usize) -> bool {
+        for row in 0..self.grid {
+            // Check the number of blocks.
+            if self.countSolids(self.line[row]) > self.horizontal[row] {
+                // print('Too many blocks in row {}. ({}, {})'.format(row+1, countSolids(self.line[row]), self.horizontal[row]))
+                return false;
+            }
+
+            // Check the length of the battle ships.
+            if self.getLongestShip(self.line[row]) > self.maxShip {
+                // print('Ship too long in row {}'.format(row+1))
+                return false;
+            }
+
+            // Check the columns.
+            let line = self.verticalLine(row);
+            if self.countSolids(line) > self.vertical[row] {
+                // print('Too many blocks in column {}'.format(row+1))
+                return false;
+            }
+
+            // Check the length of the battle ships.
+            if self.getLongestShip(line) > self.maxShip {
+                // print('Ship too long in column {}'.format(row+1))
+                return false;
+            }
+        }
+
+        // Check the ships are not touching.
+        for x in 0..self.grid {
+            for y in 0..self.grid {
+                if self.isShip(x as isize, y as isize) {
+                    // Check the diagonals.
+                    if self.isShip(x as isize-1, y as isize-1) {
+                        return false;
+                    }
+                    if self.isShip(x as isize+1, y as isize-1) {
+                        return false;
+                    }
+                    if self.isShip(x as isize-1, y as isize+1) {
+                        return false;
+                    }
+                    if self.isShip(x as isize+1, y as isize+1) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        let ships = self.getShips();
+
+        // Check the maximum size for a 4 problem this will not work.
+        if shipSize == 5 {
+            if ships[5] != 1 {
+                // print(ships)
+                return false;
+            }
+        }
+        if shipSize == 4 {
+            if ships[5] != 1 || ships[4] != 1 {
+                // print(ships)
+                return false;
+            }
+        }
+
+        // Looks good!!
+        return true;
+    }
+
+
+    // Launch a command line to solve the specified long solver position.
+    fn launch(&self, numPositions: usize, totalPositions: usize) {
+        if totalPositions > 0 {
+            println!("Long ships position {} of {}", numPositions, totalPositions);
+        }
+        if self.start as usize > numPositions {
+            return;
+        }
+
+        self.displayPosition();
+
+        let mut args: Vec<String> = [].to_vec();
+        args.push("-g".to_string());
+        args.push(format!("{}", self.index));
+        args.push("-t".to_string());
+        args.push(format!("{}", self.threads));
+        // args.push("-k".to_string());
+        args.push("-m".to_string());
+        for x in 0..self.line.len() {
+            args.push(format!("{}", self.line[x]));
+        }
+        if true {
+            println!("{:?}", args);
+        }
+
+        // Execute this command and wait for it to finish.
+        let mut command = std::process::Command::new("target/debug/battleships");
+        command.args(args);
+        let mut child = command.spawn().unwrap();
+        let _result = child.wait();
     }
 }
 
