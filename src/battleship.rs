@@ -309,9 +309,8 @@ impl Game {
                     // Final level.
                     if percentage >= self.start { // and percentage <= self.finish_search:
                         if self.isValidSolution() {
-                            let now = std::time::SystemTime::now();
-                            println!("\x1B[K{:?}", now);
-                            // println!("\033[K{}", datetime.datetime.now());
+                            // let now = std::time::SystemTime::now();
+                            // println!("\x1B[K{:?}", now);
                             self.displayPosition();
                         }
                     }
