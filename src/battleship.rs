@@ -339,15 +339,14 @@ impl Game {
                             println!("\x1B[{}C {} ", self.indent, formatTime(estimatedTime));
                             println!("\x1B[{}C {} ", self.indent, formatTime(elapsedTime));
                             println!("\x1B[{}C {} ", self.indent, formatTime(totalTime));
-                            println!("\x1B[5A");
                         }
                         else {
                             println!("{:>7.3} ", percentage);
                             println!(" {} ", formatTime(estimatedTime));
                             println!(" {} ", formatTime(elapsedTime));
                             println!(" {} ", formatTime(totalTime));
-                            println!("\x1B[5A");
                         }
+                        println!("\x1B[5A");
                     }
                 }
                 else {
@@ -400,15 +399,24 @@ impl Game {
                 self.displayBoard();
             }
             self.search(0);
+
+            // Update the display.
+            let elapsedTime = self.startTime.elapsed().as_secs(); 3600.0;
+            let totalTime = elapsedTime as u64;
+            let estimatedTime: u64 = 0;
             if self.indent > 0 {
                 println!("\x1B[{}C ------ ", self.indent);
+                println!("\x1B[{}C {} ", self.indent, formatTime(estimatedTime));
+                println!("\x1B[{}C {} ", self.indent, formatTime(elapsedTime));
+                println!("\x1B[{}C {} ", self.indent, formatTime(totalTime));
             }
             else {
                 println!(" ------ ");
+                println!(" {} ", formatTime(estimatedTime));
+                println!(" {} ", formatTime(elapsedTime));
+                println!(" {} ", formatTime(totalTime));
             }
-            // Move back up a line.
-            println!("\x1B[2A");
-
+            println!("\x1B[5A");
         }
         else {
             self.displayBoard();
