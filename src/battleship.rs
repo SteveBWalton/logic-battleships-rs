@@ -162,7 +162,11 @@ impl Game {
             board = format!("{}{}", board,self.vertical[y]);
         }
         board += "\n";
-        board = format!("{}Search space is {}\n", board, formatInt(self.number));
+        let mut logNumber: f64 = self.number as f64;
+        if logNumber > 0.0 {
+            logNumber = logNumber.log10();
+        }
+        board = format!("{}Search space is {}.  log10 = {:.2}\n", board, formatInt(self.number), logNumber);
         self.writeFile(board, self.append);
     }
 
@@ -211,6 +215,14 @@ impl Game {
         }
         board += "\n";
 
+        // Clear the 4 screen output lines, the file does not need this.
+        println!("\x1B[K");
+        println!("\x1B[K");
+        println!("\x1B[K");
+        println!("\x1B[K");
+        println!("\x1B[5A");
+
+        // Display the board on the screen and in the log file.
         self.writeFile(board, true);
     }
 
@@ -389,11 +401,14 @@ impl Game {
             }
             self.search(0);
             if self.indent > 0 {
-                print!("\x1B[{}C ------ \r", self.indent);
+                println!("\x1B[{}C ------ ", self.indent);
             }
             else {
-                print!(" ------ \r");
+                println!(" ------ ");
             }
+            // Move back up a line.
+            println!("\x1B[2A");
+
         }
         else {
             self.displayBoard();

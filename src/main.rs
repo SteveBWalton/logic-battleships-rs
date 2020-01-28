@@ -140,10 +140,6 @@ fn main() {
         }
 
         if !game.append {
-            println!();
-            println!();
-            println!();
-            println!();
             println!("Goodbye.");
         }
     }
