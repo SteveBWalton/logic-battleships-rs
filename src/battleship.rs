@@ -31,7 +31,7 @@ pub struct Game {
     count: usize,
     posibilities: Vec<Vec<usize>>,
     line: Vec<usize>,
-    startTime: std::time::Instant,
+    pub startTime: std::time::Instant,
     totalShips: usize,
 }
 
@@ -330,7 +330,7 @@ impl Game {
 
                     // Display the progress on this thread.
                     if self.count % 10000000 == 0 {
-                        let elapsedTime = self.startTime.elapsed().as_secs(); 3600.0; // time.time() - self.startTime
+                        let elapsedTime = self.startTime.elapsed().as_secs();
                         let completed = (percentage - self.start) / (self.finish - self.start);
                         let totalTime = (elapsedTime as f64 / completed) as u64;
                         let estimatedTime = 30 + ((1.0 - completed) * totalTime as f64) as u64;
@@ -401,7 +401,7 @@ impl Game {
             self.search(0);
 
             // Update the display.
-            let elapsedTime = self.startTime.elapsed().as_secs(); 3600.0;
+            let elapsedTime = self.startTime.elapsed().as_secs();
             let totalTime = elapsedTime as u64;
             let estimatedTime: u64 = 0;
             if self.indent > 0 {
@@ -668,10 +668,6 @@ impl Game {
         while isAnyThreadRunning(threads):
             time.sleep(10)
         */
-        println!();
-        println!();
-        println!();
-        println!();
     }
 
 
