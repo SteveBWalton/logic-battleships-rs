@@ -134,21 +134,22 @@ fn main() {
     }
     else {
         if game.index > 0 {
+
+            let startTime = std::time::Instant::now();
+
             game.loadGame();
 
             game.solve();
-        }
 
+            if !game.append {
+                let elapsedTime = startTime.elapsed().as_secs();
+                let hours = elapsedTime / 3600;
+                let minutes = (elapsedTime - hours * 3600) / 60;
+                let seconds = elapsedTime - hours * 3600 - minutes * 60;
+                println!("Time taken {}:{:02}:{:02}", hours, minutes, seconds);
+            }
+        }
         if !game.append {
-            println!();
-            println!();
-            println!();
-            println!();
-            let elapsedTime = game.startTime.elapsed().as_secs();
-            let hours = elapsedTime / 3600;
-            let minutes = (elapsedTime - hours * 3600) / 60;
-            let seconds = elapsedTime - hours * 3600 - minutes * 60;
-            println!("Time taken {}:{:02}:{:02}", hours, minutes, seconds);
             println!("Goodbye.");
         }
     }

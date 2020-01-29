@@ -31,7 +31,7 @@ pub struct Game {
     count: usize,
     posibilities: Vec<Vec<usize>>,
     line: Vec<usize>,
-    pub startTime: std::time::Instant,
+    startTime: std::time::Instant,
     totalShips: usize,
 }
 
@@ -401,7 +401,7 @@ impl Game {
             self.search(0);
 
             // Update the display.
-            let elapsedTime = self.startTime.elapsed().as_secs();
+            let elapsedTime = 30 + self.startTime.elapsed().as_secs();
             let totalTime = elapsedTime as u64;
             let estimatedTime: u64 = 0;
             if self.indent > 0 {
@@ -416,7 +416,11 @@ impl Game {
                 println!(" {} ", formatTime(elapsedTime));
                 println!(" {} ", formatTime(totalTime));
             }
-            println!("\x1B[5A");
+
+            // Move the cursor back up the 4 lines.
+            if self.append {
+                println!("\x1B[5A");
+            }
         }
         else {
             self.displayBoard();
@@ -435,6 +439,12 @@ impl Game {
             else {
                 // Launch threads to standard solve the problem.
                 self.startThreads();
+
+                // Move the cursor down the 4 lines.
+                println!();
+                println!();
+                println!();
+                println!();
             }
         }
 
