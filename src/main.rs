@@ -72,11 +72,15 @@ fn main() {
                         }
 
                         "k" => {
-                            game.append = true;
+                            game.isAppend = true;
                         }
 
                         "l" => {
-                            game.largeSolver = true;
+                            game.isLargeSolver = true;
+                        }
+
+                        "1" => {
+                            game.isOneSolution = true;
                         }
 
                         _ => {
@@ -131,6 +135,7 @@ fn main() {
         println!("  -m MASK\tThe initial known position.");
         println!("  -k\t\tKeep the existing output file.");
         println!("  -l\t\tLarge solver.  Guess the position of 4 and 5 ships.");
+        println!("  -1\t\tOnly one solution.  Finish once a solution is found.");
     }
     else {
         if game.index > 0 {
@@ -141,7 +146,7 @@ fn main() {
 
             game.solve();
 
-            if !game.append {
+            if !game.isAppend {
                 let elapsedTime = startTime.elapsed().as_secs();
                 let hours = elapsedTime / 3600;
                 let minutes = (elapsedTime - hours * 3600) / 60;
@@ -149,7 +154,17 @@ fn main() {
                 println!("Time taken {}:{:02}:{:02}", hours, minutes, seconds);
             }
         }
-        if !game.append {
+        if !game.isAppend {
+            // Remove the solved file, if any.
+            match std::fs::remove_file(".battleship_solved") {
+                Err(_e) => {
+                }
+
+                Ok(_) => {
+                }
+            }
+
+            // Finanlly finished.
             println!("Goodbye.");
         }
     }

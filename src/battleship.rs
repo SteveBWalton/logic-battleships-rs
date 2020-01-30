@@ -14,9 +14,10 @@ pub struct Game {
     pub start: f64,
     pub finish: f64,
     pub threads: usize,
-    pub append: bool,
-    pub largeSolver: bool,
+    pub isAppend: bool,
+    pub isLargeSolver: bool,
     pub userMask: Vec<usize>,
+    pub isOneSolution: bool,
 
     // Properties loaded from the game index.
     pub grid: usize,
@@ -46,7 +47,7 @@ impl Game {
         let line = Vec::new();
         let now = std::time::Instant::now();
         let userMask = Vec::new();
-        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, append: false, largeSolver: false, userMask: userMask, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now, totalShips: 0}
+        Game{index: 0, grid: 0, indent: 0, start: 0.0, finish: 100.0, threads: 0, isAppend: false, isLargeSolver: false, userMask: userMask, isOneSolution: false, maxShip: 0, horizontal: horizontal, vertical: vertical, mask: mask, negativeMask: negativeMask, number: 1, count: 1, posibilities: posibilities, line: line, startTime: now, totalShips: 0}
     }
 
 
@@ -167,7 +168,7 @@ impl Game {
             logNumber = logNumber.log10();
         }
         board = format!("{}Search space is {}.  log10 = {:.2}\n", board, formatInt(self.number), logNumber);
-        self.writeFile(board, self.append);
+        self.writeFile(board, self.isAppend);
     }
 
 
@@ -319,17 +320,47 @@ impl Game {
                 self.line[level] = possible;
                 if level == self.grid - 1 {
                     // Final level.
-                    if percentage >= self.start { // and percentage <= self.finish_search:
+                    if percentage >= self.start && percentage <= self.finish {
                         if self.isValidSolution() {
                             // let now = std::time::SystemTime::now();
                             // println!("\x1B[K{:?}", now);
                             self.displayPosition();
+
+                            // Create a solved file to tell all threads to exit.
+                            if self.isOneSolution {
+                                println!("Create the .battleship_solved file.");
+                                let mut option = std::fs::OpenOptions::new();
+                                // Create new.
+                                // This errors if the file exists.
+                                option.write(true);
+                                option.create_new(true);
+
+                                match option.open(".battleship_solved") {
+                                    Err(e) => {
+                                        println!("Solved File open error.");
+                                        println!("{}", e);
+                                    }
+
+                                    Ok(mut f) => {
+                                        // match f.write_all(message.as_bytes()) {
+                                        match write!(f, "{}", "Solved.") {
+                                            Err(_e) => {
+                                                println!("Solved file write error.");
+                                            }
+
+                                            Ok(_) => {
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     self.count += 1;
 
                     // Display the progress on this thread.
                     if self.count % 10000000 == 0 {
+                    // if true {
                         let elapsedTime = self.startTime.elapsed().as_secs();
                         let completed = (percentage - self.start) / (self.finish - self.start);
                         let totalTime = (elapsedTime as f64 / completed) as u64;
@@ -347,6 +378,13 @@ impl Game {
                             println!(" {} ", formatTime(totalTime));
                         }
                         println!("\x1B[5A");
+
+                        // Check if the solution is already found.
+                        if self.isOneSolution {
+                           if std::path::Path::new(".battleship_solved").exists() {
+                               self.count = 2 * self.number;
+                           }
+                        }
                     }
                 }
                 else {
@@ -395,7 +433,7 @@ impl Game {
         }
         else if self.threads == 1 {
             // Active solve this problem.
-            if !self.append {
+            if !self.isAppend {
                 self.displayBoard();
             }
             self.search(0);
@@ -418,14 +456,14 @@ impl Game {
             }
 
             // Move the cursor back up the 4 lines.
-            if self.append {
+            if self.isAppend {
                 println!("\x1B[5A");
             }
         }
         else {
             self.displayBoard();
 
-            if self.largeSolver {
+            if self.isLargeSolver {
                 // Use the large solver.
                 // This only works for maxShip 5 problems.
                 if self.maxShip != 5 {
@@ -615,6 +653,9 @@ impl Game {
             args.push("-t".to_string());
             args.push("1".to_string());
             args.push("-k".to_string());
+            if self.isOneSolution {
+                args.push("-1".to_string());
+            }
 
             if self.userMask.len() > 0 {
                 args.push("-m".to_string());
@@ -858,6 +899,11 @@ impl Game {
         if self.start as usize > numPositions {
             return;
         }
+        if self.isOneSolution {
+            if std::path::Path::new(".battleship_solved").exists() {
+               return;
+           }
+        }
 
         // self.displayPosition();
 
@@ -867,6 +913,9 @@ impl Game {
         args.push("-t".to_string());
         args.push(format!("{}", self.threads));
         args.push("-k".to_string());
+        if self.isOneSolution {
+            args.push("-1".to_string());
+        }
         args.push("-m".to_string());
         for x in 0..self.line.len() {
             args.push(format!("{}", self.line[x]));
