@@ -299,7 +299,6 @@ impl Game {
         let percentage = 100.0 * self.count as f64 / self.number as f64;
 
         // If before start then do something.
-
         if percentage < self.start {
             let numSteps = self.getNumPossible(level);
             let stepPercentage = 100.0 * ( self.count + numSteps ) as f64 / self.number as f64;
@@ -388,11 +387,38 @@ impl Game {
                     }
                 }
                 else {
-                    // Search down to the next leve.
-                    self.search(level+1);
+                    // Check if the vertical lines are exceeded.
+                    if self.isVerticalLinesOk(level) {
+                        // Search down to the next level.
+                        self.search(level+1);
+                    }
+                    else
+                    {
+                        let numSteps = self.getNumPossible(level+1);
+                        self.count += numSteps;
+                    }
                 }
             }
         }
+    }
+
+
+
+    fn isVerticalLinesOk(& self, level: usize) -> bool {
+        for row in 0..self.grid {
+            let line = self.getPartVerticalLine(row, level);
+
+            // Check that the vertical lines match the conditions
+            if self.countSolids(line) > self.vertical[row] {
+                return false;
+            }
+
+            // Check the length of the battle ships.
+            if self.getLongestShip(line) > self.maxShip {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -559,6 +585,21 @@ impl Game {
         }
         return line
     }
+
+
+
+    // Calculates the score for part of the vertical line (upto level).
+    fn getPartVerticalLine(&self, index: usize, level: usize) -> usize {
+        let mask = 2_usize.pow(index as u32);
+        let mut line = 0;
+        for row in 0..level {
+            if self.line[row] & mask == mask {
+                line += 2_usize.pow(row as u32);
+            }
+        }
+        return line
+    }
+
 
 
     // Returns true if the specified position is ship in the current position.
