@@ -592,9 +592,16 @@ impl Game {
     fn getPartVerticalLine(&self, index: usize, level: usize) -> usize {
         let mask = 2_usize.pow(index as u32);
         let mut line = 0;
-        for row in 0..level {
-            if self.line[row] & mask == mask {
-                line += 2_usize.pow(row as u32);
+        for row in 0..self.grid {
+            if row <= level {
+                if self.line[row] & mask == mask {
+                    line += 2_usize.pow(row as u32);
+                }
+            }
+            else {
+                if self.mask[row] & mask == mask {
+                    line += 2_usize.pow(row as u32);
+                }
             }
         }
         return line
