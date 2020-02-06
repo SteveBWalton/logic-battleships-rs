@@ -789,6 +789,30 @@ impl Game {
                 self.vertical[8] = 4;
             }
 
+            49 => {
+                self.grid = 9;
+                self.maxShip = 5;
+                self.initialise();
+
+                self.horizontal[0] = 2;
+                self.horizontal[1] = 4;
+                self.horizontal[2] = 3;
+                self.horizontal[3] = 4;
+                self.horizontal[4] = 2;
+                self.horizontal[5] = 5;
+                self.horizontal[6] = 1;
+                self.horizontal[7] = 0;
+                self.horizontal[8] = 4;
+                self.vertical[0] = 2;
+                self.vertical[1] = 1;
+                self.vertical[2] = 4;
+                self.vertical[3] = 3;
+                self.vertical[4] = 4;
+                self.vertical[5] = 1;
+                self.vertical[6] = 4;
+                self.vertical[7] = 3;
+                self.vertical[8] = 3;
+            }
 
         _ => {
                 self.grid = 10;
