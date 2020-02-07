@@ -72,12 +72,12 @@ impl Game {
 
                 self.mask[7] = 128;
                 self.mask[8] = 1;
-                self.mask[9] = 512;
+                self.mask[9] = 1 + 512;
 
                 self.negativeMask[6] = 64 + 128 + 256;
-                self.negativeMask[7] = 2 + 64 + 256;
+                self.negativeMask[7] = 1 + 2 + 64 + 256;
                 self.negativeMask[8] = 2 + 64 + 128 + 256 + 512;
-                self.negativeMask[9] = 1 + 2 + 256;
+                self.negativeMask[9] = 2 + 256;
             }
 
             4 => {
@@ -162,6 +162,167 @@ impl Game {
                 self.negativeMask[7] = 256;
                 self.negativeMask[8] = 256;
                 self.negativeMask[9] = 256;
+            }
+
+            6 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 1;
+                self.horizontal[1] = 5;
+                self.horizontal[2] = 1;
+                self.horizontal[3] = 3;
+                self.horizontal[4] = 3;
+                self.horizontal[5] = 0;
+                self.horizontal[6] = 2;
+                self.horizontal[7] = 1;
+                self.horizontal[8] = 4;
+                self.horizontal[9] = 0;
+                self.vertical[0] = 1;
+                self.vertical[1] = 4;
+                self.vertical[2] = 2;
+                self.vertical[3] = 2;
+                self.vertical[4] = 0;
+                self.vertical[5] = 2;
+                self.vertical[6] = 2;
+                self.vertical[7] = 4;
+                self.vertical[8] = 0;
+                self.vertical[9] = 3;
+
+                self.mask[3] = 32 + 64;
+                self.mask[8] = 1;
+
+                self.negativeMask[2] = 16 + 32 + 64 + 128;
+                self.negativeMask[3] = 128;
+                self.negativeMask[4] = 16 + 32 + 64 + 128;
+                self.negativeMask[7] = 1 + 2;
+                self.negativeMask[8] = 2;
+                self.negativeMask[9] = 1 + 2;
+            }
+
+            7 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 1;
+                self.horizontal[1] = 2;
+                self.horizontal[2] = 3;
+                self.horizontal[3] = 1;
+                self.horizontal[4] = 2;
+                self.horizontal[5] = 2;
+                self.horizontal[6] = 0;
+                self.horizontal[7] = 7;
+                self.horizontal[8] = 1;
+                self.horizontal[9] = 1;
+                self.vertical[0] = 5;
+                self.vertical[1] = 0;
+                self.vertical[2] = 1;
+                self.vertical[3] = 3;
+                self.vertical[4] = 2;
+                self.vertical[5] = 0;
+                self.vertical[6] = 3;
+                self.vertical[7] = 2;
+                self.vertical[8] = 2;
+                self.vertical[9] = 2;
+
+                self.mask[2] = 256;
+                self.mask[3] = 1;
+                self.mask[4] = 1;
+                self.mask[7] = 16;
+
+                self.negativeMask[1] = 128 + 512;
+                self.negativeMask[2] = 2;
+                self.negativeMask[3] = 2 + 128 + 512;
+                self.negativeMask[4] = 2;
+                self.negativeMask[5] = 1 + 2;
+                self.negativeMask[6] = 8 + 16 + 32;
+                self.negativeMask[7] = 8 + 32;
+                self.negativeMask[8] = 8 + 16 + 32;
+            }
+
+            8 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 5;
+                self.horizontal[1] = 1;
+                self.horizontal[2] = 0;
+                self.horizontal[3] = 1;
+                self.horizontal[4] = 3;
+                self.horizontal[5] = 1;
+                self.horizontal[6] = 2;
+                self.horizontal[7] = 0;
+                self.horizontal[8] = 6;
+                self.horizontal[9] = 1;
+                self.vertical[0] = 2;
+                self.vertical[1] = 0;
+                self.vertical[2] = 2;
+                self.vertical[3] = 2;
+                self.vertical[4] = 3;
+                self.vertical[5] = 2;
+                self.vertical[6] = 2;
+                self.vertical[7] = 5;
+                self.vertical[8] = 1;
+                self.vertical[9] = 1;
+
+                self.mask[4] = 16 + 32 + 64;
+
+                self.negativeMask[0] = 2;
+                self.negativeMask[1] = 2;
+                self.negativeMask[2] = 2;
+                self.negativeMask[3] = 2 + 8 + 16 + 32 + 64 + 128;
+                self.negativeMask[4] = 2 + 8 + 128;
+                self.negativeMask[5] = 2 + 8 + 16 + 32 + 64 + 128;
+                self.negativeMask[6] = 2;
+                self.negativeMask[7] = 2;
+                self.negativeMask[8] = 2 + 32;
+                self.negativeMask[9] = 2;
+            }
+
+            9 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 2;
+                self.horizontal[1] = 1;
+                self.horizontal[2] = 2;
+                self.horizontal[3] = 2;
+                self.horizontal[4] = 1;
+                self.horizontal[5] = 2;
+                self.horizontal[6] = 2;
+                self.horizontal[7] = 6;
+                self.horizontal[8] = 0;
+                self.horizontal[9] = 2;
+                self.vertical[0] = 6;
+                self.vertical[1] = 0;
+                self.vertical[2] = 3;
+                self.vertical[3] = 0;
+                self.vertical[4] = 2;
+                self.vertical[5] = 1;
+                self.vertical[6] = 1;
+                self.vertical[7] = 2;
+                self.vertical[8] = 3;
+                self.vertical[9] = 2;
+
+                self.mask[2] = 256;
+                self.mask[3] = 256;
+                self.mask[4] = 16;
+                self.mask[5] = 16;
+
+                self.negativeMask[0] = 2 + 32;
+                self.negativeMask[1] = 2 + 128 + 256 + 512;
+                self.negativeMask[2] = 2 + 128 + 512;
+                self.negativeMask[3] = 1 + 2 + 8 + 16 + 32 + 128 + 512;
+                self.negativeMask[4] = 2 + 8 + 32 + 128 + 512;
+                self.negativeMask[5] = 2 + 8 + 32;
+                self.negativeMask[6] = 2 + 8 + 32;
+                self.negativeMask[7] = 2;
+                self.negativeMask[8] = 2;
+                self.negativeMask[9] = 2 + 32;
             }
 
             24 => {
@@ -896,6 +1057,46 @@ impl Game {
                 self.vertical[6] = 4;
                 self.vertical[7] = 3;
                 self.vertical[8] = 3;
+            }
+
+            50 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 2;
+                self.horizontal[1] = 1;
+                self.horizontal[2] = 6;
+                self.horizontal[3] = 1;
+                self.horizontal[4] = 5;
+                self.horizontal[5] = 0;
+                self.horizontal[6] = 0;
+                self.horizontal[7] = 2;
+                self.horizontal[8] = 3;
+                self.horizontal[9] = 0;
+                self.vertical[0] = 1;
+                self.vertical[1] = 0;
+                self.vertical[2] = 2;
+                self.vertical[3] = 4;
+                self.vertical[4] = 0;
+                self.vertical[5] = 5;
+                self.vertical[6] = 3;
+                self.vertical[7] = 3;
+                self.vertical[8] = 0;
+                self.vertical[9] = 2;
+
+                self.mask[4] = 64 + 128;
+
+                self.negativeMask[0] = 2 + 16 + 256;
+                self.negativeMask[1] = 2 + 16 + 256;
+                self.negativeMask[2] = 2 + 16 + 256;
+                self.negativeMask[3] = 2 + 16 + 32 + 64 + 128 + 256;
+                self.negativeMask[4] = 2 + 16 + 256;
+                self.negativeMask[5] = 2 + 16 + 32 + 64 + 128 + 256;
+                self.negativeMask[6] = 2 + 16 + 256;
+                self.negativeMask[7] = 2 + 16 + 256;
+                self.negativeMask[8] = 2 + 16 + 256;
+                self.negativeMask[9] = 2 + 16 + 256;
             }
 
         _ => {
