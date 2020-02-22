@@ -742,6 +742,82 @@ impl Game {
                 self.negativeMask[1] = 0b0000100000;
             }
 
+            21 => {
+                self.grid = 8;
+                self.maxShip = 5;
+                self.initialise();
+
+                self.horizontal[0] = 3;
+                self.horizontal[1] = 2;
+                self.horizontal[2] = 3;
+                self.horizontal[3] = 5;
+                self.horizontal[4] = 3;
+                self.horizontal[5] = 3;
+                self.horizontal[6] = 0;
+                self.horizontal[7] = 6;
+                self.vertical[0] = 5;
+                self.vertical[1] = 1;
+                self.vertical[2] = 2;
+                self.vertical[3] = 5;
+                self.vertical[4] = 2;
+                self.vertical[5] = 3;
+                self.vertical[6] = 1;
+                self.vertical[7] = 6;
+            }
+
+            22 => {
+                self.grid = 8;
+                self.maxShip = 5;
+                self.initialise();
+
+                self.horizontal[0] = 4;
+                self.horizontal[1] = 2;
+                self.horizontal[2] = 5;
+                self.horizontal[3] = 2;
+                self.horizontal[4] = 1;
+                self.horizontal[5] = 6;
+                self.horizontal[6] = 1;
+                self.horizontal[7] = 4;
+                self.vertical[0] = 3;
+                self.vertical[1] = 1;
+                self.vertical[2] = 5;
+                self.vertical[3] = 2;
+                self.vertical[4] = 5;
+                self.vertical[5] = 2;
+                self.vertical[6] = 2;
+                self.vertical[7] = 5;
+            }
+
+            23 => {
+                self.grid = 8;
+                self.maxShip = 5;
+                self.initialise();
+
+                self.horizontal[0] = 5;
+                self.horizontal[1] = 0;
+                self.horizontal[2] = 4;
+                self.horizontal[3] = 2;
+                self.horizontal[4] = 3;
+                self.horizontal[5] = 4;
+                self.horizontal[6] = 2;
+                self.horizontal[7] = 5;
+                self.vertical[0] = 2;
+                self.vertical[1] = 4;
+                self.vertical[2] = 3;
+                self.vertical[3] = 4;
+                self.vertical[4] = 1;
+                self.vertical[5] = 5;
+                self.vertical[6] = 0;
+                self.vertical[7] = 6;
+
+                self.mask[5] = 0b10000000;
+                self.mask[6] = 0b10000000;
+                self.negativeMask[4] = 0b01000000;
+                self.negativeMask[5] = 0b01000000;
+                self.negativeMask[6] = 0b01000000;
+                self.negativeMask[7] = 0b11000000;
+            }
+
             24 => {
                 self.grid = 8;
                 self.maxShip = 5;
@@ -770,6 +846,37 @@ impl Game {
                 self.mask[2] = 1;
                 self.negativeMask[2] = 2;
                 self.negativeMask[3] = 1+2;
+            }
+
+            25 => {
+                self.grid = 8;
+                self.maxShip = 5;
+                self.initialise();
+
+                self.horizontal[0] = 5;
+                self.horizontal[1] = 0;
+                self.horizontal[2] = 6;
+                self.horizontal[3] = 1;
+                self.horizontal[4] = 4;
+                self.horizontal[5] = 1;
+                self.horizontal[6] = 6;
+                self.horizontal[7] = 2;
+                self.vertical[0] = 4;
+                self.vertical[1] = 2;
+                self.vertical[2] = 3;
+                self.vertical[3] = 4;
+                self.vertical[4] = 3;
+                self.vertical[5] = 3;
+                self.vertical[6] = 1;
+                self.vertical[7] = 5;
+
+                self.mask[5] = 0b10000000;
+                self.mask[6] = 0b10000000;
+
+                self.negativeMask[4] = 0b11000000;
+                self.negativeMask[5] = 0b01000000;
+                self.negativeMask[6] = 0b01000000;
+                self.negativeMask[7] = 0b01000000;
             }
 
             26 => {
@@ -1612,6 +1719,38 @@ impl Game {
                 self.negativeMask[3] = 0b0011100000;
                 self.negativeMask[4] = 0b0010100000;
                 self.negativeMask[5] = 0b0011100000;
+            }
+
+            54 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 1;
+                self.horizontal[1] = 3;
+                self.horizontal[2] = 0;
+                self.horizontal[3] = 1;
+                self.horizontal[4] = 6;
+                self.horizontal[5] = 2;
+                self.horizontal[6] = 1;
+                self.horizontal[7] = 1;
+                self.horizontal[8] = 5;
+                self.horizontal[9] = 0;
+                self.vertical[0] = 0;
+                self.vertical[1] = 1;
+                self.vertical[2] = 3;
+                self.vertical[3] = 0;
+                self.vertical[4] = 3;
+                self.vertical[5] = 2;
+                self.vertical[6] = 4;
+                self.vertical[7] = 1;
+                self.vertical[8] = 2;
+                self.vertical[9] = 4;
+
+                self.mask[0] = 0b0000000100;
+
+                self.negativeMask[0] = 0b0000001010;
+                self.negativeMask[1] = 0b0000001110;
             }
 
         _ => {
