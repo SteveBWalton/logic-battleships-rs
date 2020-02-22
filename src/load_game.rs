@@ -4,6 +4,7 @@
 use crate::battleship::Game;
 
 impl Game {
+    /// Load the game specified by self.index into the game.
     pub fn loadGame(&mut self) {
         match self.index {
             1 => {

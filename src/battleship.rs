@@ -9,22 +9,37 @@ use std::io::prelude::*;
 #[derive(Clone)]
 pub struct Game {
     // Properties specified by the command line.
+    /// The index of the game to solve.
     pub index: usize,
+    /// The indent for displaying the progress on the output.
     pub indent: usize,
+    /// The starting position to solve from [0..100].
     pub start: f64,
+    /// The finish position to solve to [0..100].
     pub finish: f64,
+    /// The number of threads to actual use.  If one thread actually solve the problem.  Otherwise spawn the specified number of threads and split the problem between these thread.  This thread should just wait for the spawned threads to complete.
     pub threads: usize,
+    /// True to append information to the output file, false to write a new output file.
     pub isAppend: bool,
+    /// True to use the large solver, false to use the standard solver.
     pub isLargeSolver: bool,
+    /// Specifies additional mask information.  The large solver uses this to spawn threads for sub problems.
     pub userMask: Vec<usize>,
+    /// Specifies true to abort all threads once a solution has been found, false to continue to find all solutions.
     pub isOneSolution: bool,
 
     // Properties loaded from the game index.
+    /// Specifies the size of the grid for the current game.
     pub grid: usize,
+    /// Specifies the maximum ship size in this problem.  Expected to be 4 or 5.
     pub maxShip: usize,
+    /// Specifies the horizontal constraints.
     pub horizontal: Vec<usize>,
+    /// Specifies the vertical constraints.
     pub vertical: Vec<usize>,
+    /// Specifies the initial mask.
     pub mask: Vec<usize>,
+    /// Specifies the initial cells that are definitely empty.
     pub negativeMask: Vec<usize>,
 
     // Workspace for the solution.
@@ -38,6 +53,7 @@ pub struct Game {
 
 // Methods for the 'Game' class.
 impl Game {
+    /// Create a new 'Game' structure.
     pub fn new() -> Game {
         let horizontal = Vec::new();
         let vertical = Vec::new();
@@ -52,7 +68,7 @@ impl Game {
 
 
 
-    // Initialise the arrays.
+    /// Initialise the arrays.
     pub fn initialise(&mut self) {
         // println!("initialise, self.grid = {}", self.grid);
         /*
@@ -72,6 +88,8 @@ impl Game {
 
 
 
+    /// Write the specified message to the output file.
+    /// The output can be appended to the existing output file or start a new output file.
     fn writeFile(&self, message: String, isAppend: bool) {
         print!("{}", message);
         // println!("isAppend = {}", isAppend);
@@ -121,7 +139,7 @@ impl Game {
 
 
 
-    // Display the intial board.
+    /// Display the intial board.
     fn displayBoard(&self) {
         let mut board : String = format!("Logic Battleships Game Number {}\n", self.index);
 
@@ -173,8 +191,8 @@ impl Game {
 
 
 
-    // Display the current position.
-    // This is usually a solution.
+    /// Display the current position.
+    /// This is usually a solution.
     fn displayPosition(& self) {
         let mut board : String = format!("Logic Battleships Game Number {}\n", self.index);
 
@@ -229,7 +247,7 @@ impl Game {
 
 
 
-    // Returns the set of possible lines that have the specified number of solid positions.
+    /// Returns the set of possible lines that have the specified number of solid positions.
     fn getPossibleLines(&self, numSolid :usize, mask :usize, negativeMask :usize) -> Vec<usize> {
         // print('GetPossibleLines({}, {}, {}, {}, {})'.format(nNumPositions, nNumSolid, nMaxShip, nMask, nNegativeMask))
         let mut listResult = Vec::new();
@@ -250,7 +268,7 @@ impl Game {
 
 
 
-    // Returns the number of ship elements in the positon.
+    /// Returns the number of ship elements in the positon.
     fn countSolids(&self, position :usize) -> usize {
         let mut count :usize = 0;
         for pos in 0..self.grid {
@@ -264,7 +282,7 @@ impl Game {
 
 
 
-    // Returns the size of the longest ship in the position.
+    /// Returns the size of the longest ship in the position.
     fn getLongestShip(&self, position :usize) -> usize {
         let mut maximum :usize = 0;
         let mut current :usize = 0;
@@ -403,7 +421,7 @@ impl Game {
     }
 
 
-
+    /// Returns true if the vertical line built to 'level' is allowed, false otherwise.
     fn isVerticalLinesOk(& self, level: usize) -> bool {
         for row in 0..self.grid {
             let line = self.getPartVerticalLine(row, level);
@@ -447,7 +465,7 @@ impl Game {
     }
 
 
-    // Find the solutions to the game.
+    /// Find the solutions to the game.
     pub fn solve(&mut self) {
         if !self.initialiseGame()
         {
@@ -516,7 +534,7 @@ impl Game {
 
 
 
-    // Returns true if the current position is valid solution to the problem.
+    /// Returns true if the current position is valid solution to the problem.
     fn isValidSolution(&self) -> bool {
         for row in 0..self.grid {
             let line = self.verticalLine(row);
@@ -574,7 +592,7 @@ impl Game {
 
 
 
-    // Calculates the score for the vertical line.
+    /// Calculates the score for the vertical line.
     fn verticalLine(&self, index: usize) -> usize {
         let mask = 2_usize.pow(index as u32);
         let mut line = 0;
@@ -588,7 +606,7 @@ impl Game {
 
 
 
-    // Calculates the score for part of the vertical line (upto level).
+    /// Calculates the score for part of the vertical line (upto level).
     fn getPartVerticalLine(&self, index: usize, level: usize) -> usize {
         let mask = 2_usize.pow(index as u32);
         let mut line = 0;
@@ -609,7 +627,7 @@ impl Game {
 
 
 
-    // Returns true if the specified position is ship in the current position.
+    /// Returns true if the specified position is ship in the current position.
     fn isShip(&self, x: isize, y: isize) -> bool {
         // Allow questions outside the grid.  The answer is false.
         if x < 0 || x >= self.grid as isize || y < 0 || y >= self.grid as isize {
@@ -623,7 +641,7 @@ impl Game {
 
 
 
-    // Counts the number and size of ships on the line.
+    /// Counts the number and size of ships on the line.
     fn countShipsOnLine(&self, line: usize, ships: &mut Vec<usize>) {
         // binaryLine = '{0:b}'.format(line)
         let mut current = 0;
@@ -771,14 +789,14 @@ impl Game {
 
 
 
-    // Set the position to the position defined by the mask.
+    /// Set the position to the position defined by the mask.
     fn applyMask(&mut self) {
         for x in 0..self.grid {
             self.line[x] = self.mask[x]
         }
     }
 
-    // Loop through all the possible positions for the large ships.
+    /// Loop through all the possible positions for the large ships.
     fn guessLargeShips(&mut self, isSolve: bool, numPositions: usize, totalPositions: usize) -> usize {
 
         // print('Loop through all the possible positions for the large ships. ')
@@ -868,7 +886,7 @@ impl Game {
     }
 
 
-    // Returns true if the current position does not exceed the boundary conditions and could lead to a valid solultion.
+    /// Returns true if the current position does not exceed the boundary conditions and could lead to a valid solultion.
     fn isPartialSolution(&self, shipSize: usize) -> bool {
         for row in 0..self.grid {
             // Check the number of blocks.
@@ -939,7 +957,7 @@ impl Game {
     }
 
 
-    // Launch a command line to solve the specified long solver position.
+    /// Launch a command line to solve the specified long solver position.
     fn launch(&self, numPositions: usize, totalPositions: usize) {
         if totalPositions > 0 {
             self.writeFile(format!("Long ships position {} of {}\n", numPositions, totalPositions), true);
@@ -994,6 +1012,8 @@ fn formatInt(i: usize) -> String {
     }
     return s;
 }
+
+
 
 fn formatTime(t: u64) -> String {
     let hours = t / 3600;
