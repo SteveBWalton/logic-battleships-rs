@@ -1985,6 +1985,41 @@ impl Game {
                 self.negativeMask[8] = 0b0011100000;
             }
 
+            62 => {
+                self.grid = 10;
+                self.maxShip = 4;
+                self.initialise();
+
+                self.horizontal[0] = 2;
+                self.horizontal[1] = 1;
+                self.horizontal[2] = 4;
+                self.horizontal[3] = 2;
+                self.horizontal[4] = 3;
+                self.horizontal[5] = 0;
+                self.horizontal[6] = 4;
+                self.horizontal[7] = 1;
+                self.horizontal[8] = 1;
+                self.horizontal[9] = 2;
+                self.vertical[0] = 0;
+                self.vertical[1] = 4;
+                self.vertical[2] = 3;
+                self.vertical[3] = 3;
+                self.vertical[4] = 0;
+                self.vertical[5] = 0;
+                self.vertical[6] = 0;
+                self.vertical[7] = 7;
+                self.vertical[8] = 1;
+                self.vertical[9] = 2;
+
+                self.mask[3] = 0b0000001000;
+                self.mask[4] = 0b0000001000;
+
+                self.negativeMask[2] = 0b0000010100;
+                self.negativeMask[3] = 0b0000010100;
+                self.negativeMask[4] = 0b0000010100;
+                self.negativeMask[5] = 0b0000011100;
+            }
+
         _ => {
                 // This is game 2.
                 self.grid = 10;
